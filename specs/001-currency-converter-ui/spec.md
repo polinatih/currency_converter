@@ -6,7 +6,7 @@
 
 **Status**: Draft
 
-**Input**: User description: "Назначение. Конвертер валют с графическим интерфейсом. Источник данных — на выбор студента: Любой бесплатный API курсов валют, парсинг сайта, например официального сайта Национального банка Молдовы; оба варианта равны. Справочно: BNM отдаёт данные в формате XML по адресу вида https://www.bnm.md/en/official_exchange_rates?get_xml=1&date=DD.MM.YYYY. JSON-эндпоинта нет. Официальный курс публикуется в рабочие дни, обычно до 13:00 по времени Кишинёва, и действует весь следующий рабочий день. Интерфейс: поле ввода суммы, выбор исходной валюты, выбор целевой валюты, кнопка конвертации, неактивная до заполнения обязательных полей, отображение результата, отображение даты курса и источника данных. Обязательное поведение: Нет сети. Приложение не падает, выводит понятное сообщение, при наличии сохранённых данных предлагает работать с последним успешно полученным курсом с указанием его даты. Выходные и праздники. Если источник не публикует курс в выбранную дату, приложение корректно обрабатывает пустой ответ и берёт последний доступный курс, явно сообщая об этом пользователю. Некорректный ввод. Отрицательная сумма, ноль, буквы, пустое поле — приложение сообщает об ошибке и не выполняет конвертацию. Одинаковые валюты. Выбор одной и той же валюты в обоих списках обрабатывается без ошибки. Кэширование. Последний успешный ответ источника сохраняется локально и переживает перезапуск приложения."
+**Input**: User description: "Назначение. Конвертер валют с графическим интерфейсом. Источник данных: официальный XML-источник Национального банка Молдовы (BNM) является основным и предпочтительным вариантом из-за его официального статуса и стабильной структуры; альтернативный бесплатный API допустим только как явно задокументированная замена при эквивалентном поведении. Справочно: BNM отдаёт данные в формате XML по адресу вида https://www.bnm.md/en/official_exchange_rates?get_xml=1&date=DD.MM.YYYY. JSON-эндпоинта нет. Официальный курс публикуется в рабочие дни, обычно до 13:00 по времени Кишинёва, и действует весь следующий рабочий день. Интерфейс: поле ввода суммы, выбор исходной валюты, выбор целевой валюты, кнопка конвертации, неактивная до заполнения обязательных полей, отображение результата, отображение даты курса и источника данных. Обязательное поведение: Нет сети. Приложение не падает, выводит понятное сообщение, при наличии сохранённых данных предлагает работать с последним успешно полученным курсом с указанием его даты. Выходные и праздники. Если источник не публикует курс в выбранную дату, приложение корректно обрабатывает пустой ответ и берёт последний доступный курс, явно сообщая об этом пользователю. Некорректный ввод. Отрицательная сумма, ноль, буквы, пустое поле — приложение сообщает об ошибке и не выполняет конвертацию. Одинаковые валюты. Выбор одной и той же валюты в обоих списках обрабатывается без ошибки. Кэширование. Последний успешный ответ источника сохраняется локально и переживает перезапуск приложения."
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -78,7 +78,9 @@ A user must receive actionable feedback for invalid amounts and invalid currency
 - **FR-010**: The system MUST offer or reuse the last successfully retrieved rate when available, including after application restart, and must display the corresponding date.
 - **FR-011**: The system MUST persist the most recent successful source response locally so it remains available across application restarts.
 - **FR-012**: The system MUST present user-facing messages that clearly explain validation failures, network issues, fallback behavior, and missing-rate situations.
-- **FR-013**: The system MUST support either a free public exchange-rate API or the official BNM XML feed as the data source, as long as the chosen source is documented and the behavior remains equivalent.
+- **FR-013**: The system MUST use the official BNM XML feed as the default source. An alternative free public exchange-rate API is allowed only when it is explicitly documented, provides equivalent behavior, and still displays the source and effective date to the user.
+
+**Canonical Fallback Policy**: When the selected date has no published rate or the source is unavailable, the system MUST use the latest valid cached or previously successful rate, clearly label the value as a fallback, and show the corresponding rate date and source. This rule is the single source of truth for offline, holiday, and missing-rate behavior.
 
 ### Key Entities
 
@@ -100,7 +102,7 @@ A user must receive actionable feedback for invalid amounts and invalid currency
 ## Assumptions
 
 - Users expect a simple, reliable conversion interface that works even when the network or source data is inconsistent.
-- The project may use either a public exchange-rate API or the official BNM XML feed, but the final choice will be documented and validated.
+- The official BNM XML feed is the default source for the project, and any alternative public exchange-rate API must be documented and validated as an explicit substitute.
 - Official BNM data is published only on working days, so fallback logic is required for holidays, weekends, and missing publication periods.
 - The application is expected to store the last successful rate locally on the device to support recovery after restart.
 - The source may not always be available at the exact time the user requests a conversion, so the system must handle stale or missing data gracefully.

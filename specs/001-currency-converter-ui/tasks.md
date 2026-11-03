@@ -10,9 +10,9 @@
 
 **Purpose**: Project initialization and core desktop app structure
 
-- [ ] T001 Create project structure per implementation plan in `src/`, `src/ui/`, `src/services/`, `src/models/`, and `tests/`
-- [ ] T002 Initialize Python 3.12 project dependencies and runtime setup in `requirements.txt` and `src/app.py`
-- [ ] T003 [P] Configure project testing and formatting in `pytest.ini` and `requirements.txt`
+- [ ] T001 Create project structure per implementation plan in `src/`, `src/ui/`, `src/services/`, `src/models/`, and `tests/` [FR-001][FR-002]
+- [ ] T002 Initialize Python 3.12 project dependencies and runtime setup in `requirements.txt` and `src/app.py` [FR-013]
+- [ ] T003 [P] Configure project testing and formatting in `pytest.ini` and `requirements.txt` [FR-006][FR-012]
 
 ---
 
@@ -22,12 +22,12 @@
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
-- [ ] T004 Create currency models in `src/models/conversion_request.py`, `src/models/exchange_rate.py`, `src/models/rate_cache.py`, and `src/models/currency_pair.py`
-- [ ] T005 [P] Implement validation service in `src/services/validation_service.py` with rules for empty, zero, negative, and non-numeric amounts
-- [ ] T006 [P] Implement local cache service in `src/services/cache_service.py` for persisted last-successful-rate storage
-- [ ] T007 [P] Implement rate source service in `src/services/rate_service.py` for XML fetch, conversion, and fallback logic
-- [ ] T008 Create desktop application entry point and window skeleton in `src/app.py` and `src/ui/main_window.py`
-- [ ] T009 Set up user-visible error handling and status messaging in `src/ui/main_window.py`
+- [ ] T004 Create currency models in `src/models/conversion_request.py`, `src/models/exchange_rate.py`, `src/models/rate_cache.py`, and `src/models/currency_pair.py` [FR-004][FR-005][FR-008][FR-013]
+- [ ] T005 [P] Implement validation service in `src/services/validation_service.py` with rules for empty, zero, negative, and non-numeric amounts [FR-003][FR-006][FR-007]
+- [ ] T006 [P] Implement local cache service in `src/services/cache_service.py` for persisted last-successful-rate storage [FR-009][FR-010][FR-011]
+- [ ] T007 [P] Implement rate source service in `src/services/rate_service.py` for XML fetch, conversion, and fallback logic [FR-008][FR-009][FR-010][FR-013]
+- [ ] T008 Create desktop application entry point and window skeleton in `src/app.py` and `src/ui/main_window.py` [FR-001][FR-002]
+- [ ] T009 Set up user-visible error handling and status messaging in `src/ui/main_window.py` [FR-012]
 
 ---
 
@@ -39,16 +39,16 @@
 
 ### Tests for User Story 1
 
-- [ ] T010 [P] [US1] Write failing conversion tests in `tests/unit/test_conversion.py` for valid input and result formatting
-- [ ] T011 [P] [US1] Write integration test in `tests/integration/test_conversion_flow.py` for the full successful conversion path
+- [ ] T010 [P] [US1] Write failing conversion tests in `tests/unit/test_conversion.py` for valid input and result formatting [FR-004][FR-005]
+- [ ] T011 [P] [US1] Write integration test in `tests/integration/test_conversion_flow.py` for the full successful conversion path [FR-004][FR-005][FR-013]
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement conversion request processing in `src/models/conversion_request.py` and `src/services/rate_service.py`
-- [ ] T013 [US1] Implement the conversion result view and button behavior in `src/ui/main_window.py`
-- [ ] T014 [P] [US1] Add source and target currency selectors in `src/ui/main_window.py`
-- [ ] T015 [US1] Add result, rate date, and source metadata display in `src/ui/main_window.py`
-- [ ] T016 [US1] Connect the conversion button to validation and calculation flow in `src/ui/main_window.py`
+- [ ] T012 [US1] Implement conversion request processing in `src/models/conversion_request.py` and `src/services/rate_service.py` [FR-004][FR-005]
+- [ ] T013 [US1] Implement the conversion result view and button behavior in `src/ui/main_window.py` [FR-003][FR-004][FR-005]
+- [ ] T014 [P] [US1] Add source and target currency selectors in `src/ui/main_window.py` [FR-001][FR-002]
+- [ ] T015 [US1] Add result, rate date, and source metadata display in `src/ui/main_window.py` [FR-005][FR-012]
+- [ ] T016 [US1] Connect the conversion button to validation and calculation flow in `src/ui/main_window.py` [FR-003][FR-004]
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently.
 
@@ -62,15 +62,15 @@
 
 ### Tests for User Story 2
 
-- [ ] T017 [P] [US2] Write failing offline and fallback tests in `tests/unit/test_rate_fallback.py`
-- [ ] T018 [P] [US2] Write integration test in `tests/integration/test_fallback_flow.py` for cached-rate recovery after source failure
+- [ ] T017 [P] [US2] Write failing offline and fallback tests in `tests/unit/test_rate_fallback.py` [FR-008][FR-009][FR-010]
+- [ ] T018 [P] [US2] Write integration test in `tests/integration/test_fallback_flow.py` for cached-rate recovery after source failure [FR-008][FR-009][FR-010][FR-012]
 
 ### Implementation for User Story 2
 
-- [ ] T019 [US2] Implement fallback selection logic in `src/services/rate_service.py` to use the latest available valid rate when the date has no publishable result
-- [ ] T020 [US2] Implement offline reuse and persistence in `src/services/cache_service.py` for the locally stored last successful response
-- [ ] T021 [US2] Add explicit fallback messaging in `src/ui/main_window.py` and `src/services/rate_service.py`
-- [ ] T022 [US2] Ensure the effective fallback date is shown together with the source in `src/ui/main_window.py`
+- [ ] T019 [US2] Implement fallback selection logic in `src/services/rate_service.py` to use the latest available valid rate when the date has no publishable result [FR-008][FR-013]
+- [ ] T020 [US2] Implement offline reuse and persistence in `src/services/cache_service.py` for the locally stored last successful response [FR-009][FR-010][FR-011]
+- [ ] T021 [US2] Add explicit fallback messaging in `src/ui/main_window.py` and `src/services/rate_service.py` [FR-008][FR-009][FR-012]
+- [ ] T022 [US2] Ensure the effective fallback date is shown together with the source in `src/ui/main_window.py` [FR-005][FR-010][FR-012]
 
 **Checkpoint**: At this point, User Story 2 should operate correctly without a crashing or silent failure path.
 
@@ -84,15 +84,15 @@
 
 ### Tests for User Story 3
 
-- [ ] T023 [P] [US3] Write failing validation tests in `tests/unit/test_validation.py` for empty, zero, negative, and letter input
-- [ ] T024 [P] [US3] Add same-currency scenario test in `tests/unit/test_validation.py` to confirm no error on identical source and target selections
+- [ ] T023 [P] [US3] Write failing validation tests in `tests/unit/test_validation.py` for empty, zero, negative, and letter input [FR-003][FR-006]
+- [ ] T024 [P] [US3] Add same-currency scenario test in `tests/unit/test_validation.py` to confirm no error on identical source and target selections [FR-007]
 
 ### Implementation for User Story 3
 
-- [ ] T025 [US3] Enforce validation rules in `src/services/validation_service.py` for the required amount and currency conditions
-- [ ] T026 [US3] Prevent conversion execution when validation fails in `src/ui/main_window.py`
-- [ ] T027 [US3] Handle same-currency selections without error in `src/services/rate_service.py` and `src/ui/main_window.py`
-- [ ] T028 [US3] Add user-friendly validation and warning messages in `src/ui/main_window.py`
+- [ ] T025 [US3] Enforce validation rules in `src/services/validation_service.py` for the required amount and currency conditions [FR-003][FR-006][FR-007]
+- [ ] T026 [US3] Prevent conversion execution when validation fails in `src/ui/main_window.py` [FR-003][FR-006]
+- [ ] T027 [US3] Handle same-currency selections without error in `src/services/rate_service.py` and `src/ui/main_window.py` [FR-007]
+- [ ] T028 [US3] Add user-friendly validation and warning messages in `src/ui/main_window.py` [FR-006][FR-012]
 
 **Checkpoint**: At this point, all primary conversion flows and edge cases are independently testable.
 
@@ -102,10 +102,10 @@
 
 **Purpose**: Final verification, cleanup, and multi-story quality checks
 
-- [ ] T029 [P] Run the complete validation flow from `specs/001-currency-converter-ui/quickstart.md` and confirm all key scenarios pass
-- [ ] T030 [P] Review and update `README.md` with the app purpose, usage, and fallback behavior
-- [ ] T031 Clean up repeated logic and ensure consistent naming and messaging across `src/ui/main_window.py`, `src/services/rate_service.py`, and `src/services/cache_service.py`
-- [ ] T032 Final regression run across `tests/unit/` and `tests/integration/` to confirm the feature is stable and user-safe
+- [ ] T029 [P] Run the complete validation flow from `specs/001-currency-converter-ui/quickstart.md` and confirm all key scenarios pass [SC-001][SC-002][SC-003][SC-005]
+- [ ] T030 [P] Review and update `README.md` with the app purpose, usage, and fallback behavior [FR-008][FR-009][FR-012]
+- [ ] T031 Clean up repeated logic and ensure consistent naming and messaging across `src/ui/main_window.py`, `src/services/rate_service.py`, and `src/services/cache_service.py` [FR-008][FR-012]
+- [ ] T032 Final regression run across `tests/unit/` and `tests/integration/` to confirm the feature is stable and user-safe [SC-001][SC-002][SC-003][SC-004][SC-005]
 
 ---
 

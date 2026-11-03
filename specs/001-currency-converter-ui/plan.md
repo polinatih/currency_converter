@@ -6,13 +6,15 @@
 
 ## Summary
 
-Build a small desktop currency conversion application that validates inputs, retrieves exchange rates from an authoritative source, falls back to the latest available rate when data is missing, and persists the last successful fetch locally so the user can continue without a network connection. The design emphasizes user clarity, deterministic conversion logic, and testable fallback behavior.
+Build a small desktop currency conversion application that validates inputs, retrieves exchange rates from an authoritative source, falls back to the latest available rate when data is missing, and persists the last successful fetch locally so the user can continue without a network connection. The design emphasizes user clarity, deterministic conversion logic, and testable fallback behavior. The default source is the official BNM XML feed; any public API alternative must be explicitly documented and treated as a deliberate substitute.
 
 ## Technical Context
 
 **Language/Version**: Python 3.12
 
 **Primary Dependencies**: Tkinter for the GUI; Python standard library modules for XML parsing (`xml.etree.ElementTree`), HTTP requests (`urllib`/`requests`), and local persistence (`sqlite3` or JSON cache)
+
+**Source Policy**: BNM XML is the canonical default source. Any alternative public API is acceptable only when it is explicitly documented, provides equivalent behavior, and still exposes the effective rate date and source in the UI.
 
 **Storage**: Local file-based cache for the most recent successful rate payload; optional SQLite database if structured history is needed for later audits
 
