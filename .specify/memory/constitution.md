@@ -1,50 +1,47 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report:
+- Version change: unversioned → 1.0.0
+- Modified principles: Principle 1 → Accuracy First; Principle 2 → User-Centered Interface; Principle 3 → Test-First Validation; Principle 4 → Security & Data Integrity; Principle 5 → Maintainability & Simplicity
+- Added sections: Operational Constraints; Development Workflow
+- Removed sections: None
+- Follow-up TODOs: TODO(RATIFICATION_DATE): Original adoption date is not yet recorded.
+-->
+
+# Currency Converter Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Accuracy First
+Currency conversion results MUST be based on explicit, documented rate sources and deterministic calculation rules. Any rounding, fallback strategy, or assumption about source data must be stated clearly and reflected in tests before release.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. User-Centered Interface
+The converter MUST present values, currencies, and results in a way that is readable, unambiguous, and easy to validate. Hidden defaults, unclear labels, and ambiguous input rules are prohibited because they create incorrect user outcomes.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### III. Test-First Validation
+Every supported currency pair, conversion edge case, and validation rule MUST have automated tests before the code is considered complete. Any bug fix or behavior change MUST include a failing test when the issue is reproducible.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### IV. Security & Data Integrity
+Inputs and external data MUST be validated, sanitized, and handled safely. The project MUST reject malformed values, prevent silent corruption from stale or untrusted data, and fail clearly when a dependency or source cannot provide trustworthy results.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### V. Maintainability & Simplicity
+The codebase MUST favor clear, small, testable units over clever abstractions. Changes must preserve or improve readability, avoid unnecessary dependencies, and document any intentional behavior that is not self-evident.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+## Operational Constraints
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+The project is a focused currency conversion tool and MUST remain easy to understand, run, and validate. Configuration, rate sources, and conversion assumptions MUST be explicit and discoverable in the repository so contributors can verify behavior without reverse engineering the implementation.
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+The project MUST avoid hard-coded secrets, undocumented external dependencies, and silent changes in business rules. When conversion logic or supported currencies change, the documentation and tests MUST change in the same review.
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+## Development Workflow
+
+All changes MUST be reviewed for correctness, clarity, and compliance with this constitution before merge. Each contribution MUST include or update tests that validate the intended behavior, and any change to calculation logic or user-facing output MUST be accompanied by clear notes in the repository documentation.
+
+The project MUST keep the default path to correctness simple: implement the smallest change, validate it with automated checks, and verify that the behavior matches the documented conversion rules. Releases must not ship with untested assumptions about rates, rounding, or error handling.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+This constitution governs all project decisions that affect behavior, quality, and operational safety. Any amendment MUST be documented, reviewed, and linked to the specific change it is modifying so contributors can trace the reasoning behind the rule.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+All changes must be checked against this document before merge. If a rule is unclear, the team MUST resolve the ambiguity before proceeding rather than relying on informal exceptions. When a project decision conflicts with this constitution, the constitution takes precedence unless a formal amendment is adopted.
+
+**Version**: 1.0.0 | **Ratified**: TODO(RATIFICATION_DATE): Original adoption date is not yet recorded. | **Last Amended**: 2026-11-04
