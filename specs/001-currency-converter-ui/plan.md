@@ -6,19 +6,21 @@
 
 ## Summary
 
-Build a small desktop currency conversion application that validates inputs, retrieves exchange rates from an authoritative source, falls back to the latest available rate when data is missing, and persists the last successful fetch locally so the user can continue without a network connection. The design emphasizes user clarity, deterministic conversion logic, and testable fallback behavior. The default source is the official BNM XML feed; any public API alternative must be explicitly documented and treated as a deliberate substitute.
+Build a small desktop currency conversion application that validates inputs, retrieves BNM exchange rates, falls back to earlier dates or the last successful cached response when data is missing, and persists that response locally so the user can continue without a network connection. The design emphasizes user clarity, correct per-nominal conversion logic, and testable fallback behavior.
 
 ## Technical Context
 
 **Language/Version**: Python 3.12
 
-**Primary Dependencies**: Tkinter for the GUI; Python standard library modules for XML parsing (`xml.etree.ElementTree`), HTTP requests (`urllib`/`requests`), and local persistence (`sqlite3` or JSON cache)
+**Primary Dependencies**: Tkinter and Python standard library modules only, including `xml.etree.ElementTree`, `urllib`, and JSON file handling. Network requests use a 10-second timeout. No third-party dependencies.
 
-**Source Policy**: BNM XML is the canonical default source. Any alternative public API is acceptable only when it is explicitly documented, provides equivalent behavior, and still exposes the effective rate date and source in the UI.
+**Application Launch**: Run `py -m src.app` from the repository root. All application imports use absolute package paths rooted at the repository, for example `from src.services.rate_service import ...`.
 
-**Storage**: Local file-based cache for the most recent successful rate payload; optional SQLite database if structured history is needed for later audits
+**Source Policy**: The official BNM XML feed is the only exchange-rate source. Its rates are MDL per `Nominal` units of each currency; MDL is not listed and is represented internally as rate 1, nominal 1. A well-formed response with no rates triggers requests for the previous calendar day one day at a time, through 10 days before today. An earlier effective date is shown in a user-visible notice. The displayed pair rate is `1 <source> = X <target>`, where `X = (rate_from / nominal_from) / (rate_to / nominal_to)`.
 
-**Testing**: `pytest` for unit tests covering validation, fallback logic, and cache behavior; integration tests for source and offline scenarios
+**Storage**: One local JSON cache file containing the last successful parsed response's effective date, source, and rates. Empty, malformed, or failed responses never replace it.
+
+**Testing**: Python standard library `unittest` only. Run all tests from the repository root with `py -m unittest`. `tests/test_rates.py` covers BNM XML parsing, rate-per-nominal conversion in both directions, empty and malformed responses, fallback, and cache behavior. `tests/test_validation.py` covers input validation and same-currency handling.
 
 **Target Platform**: Desktop, cross-platform Windows/macOS/Linux support with a single GUI application
 
@@ -58,6 +60,7 @@ specs/001-currency-converter-ui/
 
 ```text
 src/
+├── __init__.py
 ├── app.py
 ├── ui/
 │   ├── __init__.py
@@ -71,23 +74,21 @@ src/
 │   ├── __init__.py
 │   ├── conversion_request.py
 │   ├── exchange_rate.py
-│   └── rate_cache.py
+│   ├── rate_cache.py
+│   └── currency_pair.py
 └── utils/
     ├── __init__.py
     └── currency_utils.py
 
 tests/
-├── unit/
-│   ├── test_validation.py
-│   ├── test_rate_fallback.py
-│   └── test_cache.py
-├── integration/
-│   └── test_source_loading.py
+├── __init__.py
+├── test_rates.py
+├── test_validation.py
 └── fixtures/
     └── sample_bnm_response.xml
 ```
 
-**Structure Decision**: Single desktop-app structure with a thin UI layer and explicit service modules for validation, rate retrieval, and local cache management. This keeps the application easy to test and aligns with the constitution’s maintainability and accuracy principles.
+**Structure Decision**: Single desktop-app structure with `src` as a Python package, a thin UI layer, and explicit service modules for validation, rate retrieval, and local cache management. Imports use absolute paths rooted at the repository, and the app is launched with `py -m src.app`. The `tests` package and consistently named standard-library test modules support discovery with `py -m unittest` from the repository root.
 
 ## Complexity Tracking
 

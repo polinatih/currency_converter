@@ -1,18 +1,17 @@
 # Research: Currency Converter UI
 
-## Decision: Use the official BNM XML feed as the default source
+## Decision: Use the official BNM XML feed as the only source
 
-**Decision**: The application will prefer the official National Bank of Moldova (BNM) XML endpoint for live exchange rates because it is an authoritative source, is published on working days, and matches the project requirement for a legitimate rate source without requiring a paid commercial service.
+**Decision**: The application will use only the official National Bank of Moldova (BNM) XML endpoint for live exchange rates because it is an authoritative source, is published on working days, and matches the project requirement for a legitimate rate source without requiring a paid commercial service.
 
 **Rationale**: The project specification explicitly notes that BNM publishes the rate in XML on a stable URL and that there is no JSON endpoint. This provides a deterministic source with clear date semantics and explicit rate validity windows.
 
 **Alternatives considered**:
-- Public free APIs: easier to consume but often rate-limited and less trustworthy for a student project due to inconsistent schema and availability.
-- Manual parsing of other public pages: reduced reliability and more fragile change-management risk.
+- Public free APIs and manual parsing of other public pages are out of scope; BNM XML is the single supported source.
 
 ## Decision: Use local cache as the fallback and offline safety net
 
-**Decision**: The app will persist the most recent successful response locally and reuse it when the network is unavailable or the selected day has no published rate.
+**Decision**: The app will persist the most recent successful response locally and reuse it when the network is unavailable, XML is malformed, or no rates are found after checking today and the 10 preceding calendar days.
 
 **Rationale**: The specification requires graceful handling of offline conditions and missing-rate days, and it explicitly says the app should offer the user the last successful rate with its date. A cached rate is the clearest path to satisfy both requirements.
 
@@ -41,7 +40,7 @@
 
 ## Design implications
 
-- The application must treat weekends and official holidays as missing rate periods and use the latest available data with a visible fallback notice.
-- Retry behavior should be limited to a simple read of the latest cached or most recent valid rate, not a long series of retries.
+- The application must treat weekends and official holidays as missing rate periods, checking each previous calendar day through the 10-day limit and showing the effective date when an earlier rate is used.
+- If fetching fails, XML is malformed, or the 10-day search returns no rates, use the last successful cached response when available and show its effective date.
 - Validation should happen before any network or conversion logic executes to avoid silent errors or incorrect outputs.
 - All rate-source fallback actions must be visible to the user so the application remains transparent and trustworthy.
