@@ -14,15 +14,21 @@ from unittest.mock import MagicMock, call, patch
 from urllib.error import URLError
 
 try:
+    from src.models.conversion_request import ConversionRequest, ConversionResult
     from src.models.currency_pair import CurrencyPair
     from src.models.exchange_rate import ExchangeRate
     from src.services.cache_service import CacheService
-    from src.services.rate_service import RateService
+    from src.services.rate_service import RateResult, RateService
+    from src.ui.main_window import MainWindow
 except ImportError:
+    ConversionRequest = None
+    ConversionResult = None
     CurrencyPair = None
     ExchangeRate = None
     CacheService = None
+    RateResult = None
     RateService = None
+    MainWindow = None
 
 
 class TestRatesT003(unittest.TestCase):
@@ -111,6 +117,20 @@ class TestRatesT003(unittest.TestCase):
         result = self.service.convert(123.45, "EUR", "EUR", rates)
         self.assertEqual(result, 123.45)
         self.assertEqual(self.service.format_result(result), "123.45")
+
+    def test_conversion_request_processing(self):
+        """ConversionRequest.process and service.process_conversion_request calculate amounts and pair rates [T011]."""
+        rates, _, _ = self.service.parse_xml(self.sample_xml)
+        req = ConversionRequest(100.0, "USD", "EUR")
+        result = req.process(rates)
+        self.assertAlmostEqual(result.converted_amount, 90.0)
+        self.assertEqual(result.result_display, "90.00")
+        self.assertEqual(result.pair_rate_display, "1 USD = 0.9000 EUR")
+
+        # Via service
+        svc_result = self.service.process_conversion_request(req, rates)
+        self.assertEqual(svc_result.result_display, "90.00")
+        self.assertEqual(svc_result.pair_rate_display, "1 USD = 0.9000 EUR")
 
     def test_pair_rate_display_four_decimals(self):
         """Display pair rate as '1 <source> = X <target>' with 4 decimal places."""
@@ -312,6 +332,70 @@ class TestRatesT005(unittest.TestCase):
 
         with self.assertRaises(Exception):
             self.rate_service.get_rates_with_fallback(today)
+
+
+class TestMainWindowT012T014(unittest.TestCase):
+    """UI integration tests for T012, T013, T014 [FR-001, FR-002, FR-003, FR-004, FR-005, FR-018]."""
+
+    def setUp(self):
+        if MainWindow is None or RateService is None:
+            self.fail("MainWindow or RateService is not implemented")
+
+        self.mock_rate_service = MagicMock(spec=RateService)
+        fixture_path = os.path.join(
+            os.path.dirname(__file__), "fixtures", "sample_bnm_response.xml"
+        )
+        with open(fixture_path, "r", encoding="utf-8") as f:
+            sample_xml = f.read()
+
+        real_service = RateService()
+        rates, eff_date, src = real_service.parse_xml(sample_xml)
+        self.mock_rate_service.get_rates_with_fallback.return_value = RateResult(
+            rates=rates,
+            effective_date=eff_date,
+            source_name=src,
+            is_fallback=False,
+            notice="",
+        )
+        self.mock_rate_service.process_conversion_request = real_service.process_conversion_request
+        self.mock_rate_service.convert = real_service.convert
+        self.mock_rate_service.get_pair_rate_display = real_service.get_pair_rate_display
+        self.mock_rate_service.format_result = real_service.format_result
+
+        self.app = MainWindow(rate_service=self.mock_rate_service)
+        self.app.withdraw()
+
+    def tearDown(self):
+        self.app.destroy()
+
+    def test_currency_selectors_and_button_lifecycle(self):
+        """Verify currency selectors, button disabled/enabled lifecycle, and converted display."""
+        # T012: Currency selectors exist and contain loaded currencies
+        self.assertIn("USD", self.app.src_currency_combo["values"])
+        self.assertIn("EUR", self.app.tgt_currency_combo["values"])
+        self.assertIn("MDL", self.app.tgt_currency_combo["values"])
+
+        # Button is disabled initially because amount is empty [FR-003]
+        self.assertEqual(str(self.app.convert_button["state"]), "disabled")
+
+        # Invalid amount keeps button disabled [FR-003, FR-006]
+        self.app.amount_var.set("invalid_amount")
+        self.assertEqual(str(self.app.convert_button["state"]), "disabled")
+
+        # Valid amount enables button [FR-003]
+        self.app.amount_var.set("100")
+        self.app.src_currency_var.set("USD")
+        self.app.tgt_currency_var.set("EUR")
+        self.assertEqual(str(self.app.convert_button["state"]), "normal")
+
+        # T014: Click convert button
+        self.app.on_convert()
+
+        # T013: Display result (two decimals) and pair rate (four decimals), date and source [FR-005, FR-018]
+        self.assertEqual(self.app.result_var.get(), "90.00 EUR")
+        self.assertEqual(self.app.pair_rate_var.get(), "1 USD = 0.9000 EUR")
+        self.assertIn("04.11.2026", self.app.info_var.get())
+        self.assertIn("BNM", self.app.info_var.get())
 
 
 if __name__ == "__main__":

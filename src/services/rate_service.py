@@ -6,6 +6,7 @@ from datetime import date, timedelta
 from typing import Dict, Optional, Tuple
 import xml.etree.ElementTree as ET
 
+from src.models.conversion_request import ConversionRequest, ConversionResult
 from src.models.exchange_rate import ExchangeRate
 from src.services.cache_service import CacheService
 
@@ -116,6 +117,14 @@ class RateService:
             raise ZeroDivisionError(f"Rate for '{target_currency}' cannot be zero.")
 
         return amount * unit_from / unit_to
+
+    def process_conversion_request(
+        self,
+        request: ConversionRequest,
+        rates: Dict[str, ExchangeRate],
+    ) -> ConversionResult:
+        """Process a conversion request object [FR-004, FR-017]."""
+        return request.process(rates)
 
     def get_pair_rate_display(
         self,

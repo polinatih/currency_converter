@@ -37,10 +37,10 @@
 
 **Independent Test**: Complete conversions between MDL/USD and USD/EUR in both directions and verify the formatted result and pair rate.
 
-- [ ] T011 [US1] Implement conversion request processing in `src/models/conversion_request.py` and `src/services/rate_service.py`: apply the per-unit rates normalized by T007 to the amount and currency pair (`amount * unit_from / unit_to`) and compute the pair rate [FR-004][FR-017]. Depends on test T003 and foundational tasks T006-T007.
-- [ ] T012 [P] [US1] Add source and target currency selectors in `src/ui/main_window.py` [FR-001][FR-002]. Depends on foundational task T010.
-- [ ] T013 [US1] Display the result to two decimal places and the pair rate as `1 <source> = X <target>` to four decimal places, together with the effective date and source, in `src/ui/main_window.py` [FR-005][FR-018]. Depends on test T003 and task T011.
-- [ ] T014 [US1] Connect the conversion button to validated calculation and display in `src/ui/main_window.py` [FR-003][FR-004][FR-005]. Depends on tests T002-T003 and tasks T008, T011, and T013.
+- [X] T011 [US1] Implement conversion request processing in `src/models/conversion_request.py` and `src/services/rate_service.py`: apply the per-unit rates normalized by T007 to the amount and currency pair (`amount * unit_from / unit_to`) and compute the pair rate [FR-004][FR-017]. Depends on test T003 and foundational tasks T006-T007.
+- [X] T012 [P] [US1] Add source and target currency selectors in `src/ui/main_window.py` [FR-001][FR-002]. Depends on foundational task T010.
+- [X] T013 [US1] Display the result to two decimal places and the pair rate as `1 <source> = X <target>` to four decimal places, together with the effective date and source, in `src/ui/main_window.py` [FR-005][FR-018]. Depends on test T003 and task T011.
+- [X] T014 [US1] Connect the conversion button to validated calculation and display in `src/ui/main_window.py` [FR-003][FR-004][FR-005]. Depends on tests T002-T003 and tasks T008, T011, and T013.
 
 ## Phase 5: User Story 3 - Validate input (Priority: P1)
 

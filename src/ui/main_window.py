@@ -4,6 +4,7 @@ import tkinter as tk
 from tkinter import messagebox, ttk
 from typing import Optional
 
+from src.models.conversion_request import ConversionRequest
 from src.services.rate_service import RateResult, RateService
 from src.services.validation_service import ValidationService
 
@@ -191,12 +192,10 @@ class MainWindow(tk.Tk):
             return
 
         try:
-            converted = self.rate_service.convert(amount, src, tgt, self.rate_result.rates)
-            result_str = self.rate_service.format_result(converted)
-            self.result_var.set(f"{result_str} {tgt}")
-
-            pair_display = self.rate_service.get_pair_rate_display(src, tgt, self.rate_result.rates)
-            self.pair_rate_var.set(pair_display)
+            req = ConversionRequest(amount=amount, source_currency=src, target_currency=tgt)
+            conv_res = self.rate_service.process_conversion_request(req, self.rate_result.rates)
+            self.result_var.set(f"{conv_res.result_display} {tgt}")
+            self.pair_rate_var.set(conv_res.pair_rate_display)
 
             metadata = f"Rate Date: {self.rate_result.effective_date} | Source: {self.rate_result.source_name}"
             if self.rate_result.notice:
