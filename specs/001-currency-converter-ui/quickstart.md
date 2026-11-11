@@ -4,13 +4,21 @@
 
 - Python 3.12+
 - A local desktop environment with a graphical session
-- Access to either the official BNM XML source or a fallback public API
+- No third-party dependencies
 
-## Setup
+## Setup and run
 
-1. Create a virtual environment.
-2. Install required dependencies for the chosen desktop stack.
-3. Run the application entry point from the repository root.
+From the repository root, launch the application with:
+
+```powershell
+py -m src.app
+```
+
+Run the standard-library test suite from the repository root with:
+
+```powershell
+py -m unittest
+```
 
 ## Validation scenarios
 
@@ -20,6 +28,7 @@
 - Select different source and target currencies.
 - Click the conversion button.
 - Confirm the converted result appears together with the effective rate date and source.
+- Manually verify that a valid conversion can be completed in under one minute without technical guidance (SC-001).
 
 ### 2. Invalid input
 
@@ -29,15 +38,28 @@
 
 ### 3. Missing-rate fallback
 
-- Select a date when no official rate is published.
-- Confirm the app uses the latest available valid rate and displays a clear fallback notice.
+- Start with today's rate request; do not select a date.
+- When today's response is empty, as on a weekend or holiday, confirm the app requests each previous day in turn, up to 10 days before today.
+- Confirm it uses the first available rate and shows a notice with that rate's effective date.
 
-### 4. Offline fallback
+### 4. Malformed XML
 
-- Simulate network loss or failure.
-- Confirm the app reuses the last successful cached response and informs the user.
+- Provide a malformed XML response.
+- Confirm the app reports the response error and does not treat it as an empty or valid rate response.
+- If a successful cache exists, confirm the app uses it and identifies its effective date.
 
-### 5. Same-currency conversion
+### 5. Offline fallback and cache persistence
+
+- Successfully retrieve rates and close the app.
+- Confirm the last successful parsed response remains available after restarting the app.
+- Simulate network loss and confirm the app reuses the cached rates and informs the user.
+
+### 6. Conversion directions
+
+- Convert MDL to USD and USD to MDL; confirm both directions return the expected results.
+- Convert USD to EUR and EUR to USD; confirm both directions return the expected results.
+
+### 7. Same-currency conversion
 
 - Select the same currency in both fields.
 - Confirm the app accepts the request and returns the original amount without error.
