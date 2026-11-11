@@ -66,6 +66,8 @@ class RateService:
             except ValueError:
                 continue
 
+            name = (valute.findtext("Name") or "").strip()
+
             rates[char_code] = ExchangeRate(
                 currency_code=char_code,
                 rate_value=rate_value,
@@ -73,12 +75,14 @@ class RateService:
                 effective_date=effective_date,
                 source_name=source_name,
                 is_fallback=False,
+                currency_name=name,
             )
 
         # Synthetic MDL rate [FR-016]
         rates["MDL"] = ExchangeRate.create_mdl_rate(
             effective_date=effective_date,
             source_name=source_name,
+            currency_name="Молдавский лей",
         )
 
         return rates, effective_date, source_name
@@ -192,7 +196,7 @@ class RateService:
 
                 is_fallback = days_back > 0
                 notice = (
-                    f"Notice: Using latest available rates from {effective_date}."
+                    f"Используется курс на {effective_date}."
                     if is_fallback
                     else ""
                 )
@@ -224,17 +228,19 @@ class RateService:
                         effective_date=info.get("effective_date", eff_date),
                         source_name=info.get("source_name", src_name),
                         is_fallback=True,
+                        currency_name=info.get("currency_name", ""),
                     )
                 # Synthetic MDL
                 cached_rates["MDL"] = ExchangeRate.create_mdl_rate(
                     effective_date=eff_date,
                     source_name=src_name,
+                    currency_name="Молдавский лей",
                 )
 
                 if fetch_error is not None:
-                    notice = f"Notice: Network/source unavailable. Using cached rates from {eff_date} ({src_name})."
+                    notice = f"Источник недоступен. Используется сохранённый курс на {eff_date} ({src_name})."
                 else:
-                    notice = f"Notice: No exchange rates published in the last 10 days. Using cached rates from {eff_date} ({src_name})."
+                    notice = f"Нет опубликованных курсов за последние 10 дней. Используется сохранённый курс на {eff_date} ({src_name})."
 
                 return RateResult(
                     rates=cached_rates,

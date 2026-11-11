@@ -13,6 +13,7 @@ class ExchangeRate:
     effective_date: str = ""
     source_name: str = "BNM"
     is_fallback: bool = False
+    currency_name: str = ""
 
     @property
     def target_currency(self) -> str:
@@ -27,7 +28,12 @@ class ExchangeRate:
         return self.rate_value / self.nominal
 
     @classmethod
-    def create_mdl_rate(cls, effective_date: str = "", source_name: str = "BNM") -> "ExchangeRate":
+    def create_mdl_rate(
+        cls,
+        effective_date: str = "",
+        source_name: str = "BNM",
+        currency_name: str = "Молдавский лей",
+    ) -> "ExchangeRate":
         """Factory for the synthetic MDL exchange rate (rate 1, nominal 1)."""
         return cls(
             currency_code="MDL",
@@ -36,4 +42,5 @@ class ExchangeRate:
             effective_date=effective_date,
             source_name=source_name,
             is_fallback=False,
+            currency_name=currency_name,
         )

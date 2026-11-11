@@ -29,6 +29,7 @@ class CacheService:
                     "nominal": rate.nominal,
                     "effective_date": rate.effective_date,
                     "source_name": rate.source_name,
+                    "currency_name": rate.currency_name,
                 }
             elif isinstance(rate, dict):
                 rates_data[code] = {
@@ -37,6 +38,7 @@ class CacheService:
                     "nominal": int(rate.get("nominal", 1)),
                     "effective_date": rate.get("effective_date", effective_date),
                     "source_name": rate.get("source_name", source_name),
+                    "currency_name": rate.get("currency_name", ""),
                 }
 
         payload = {

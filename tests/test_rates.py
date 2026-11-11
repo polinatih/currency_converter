@@ -350,7 +350,7 @@ class TestRatesT005(unittest.TestCase):
         self.assertEqual(result.effective_date, "01.11.2026")
         self.assertIn("01.11.2026", result.notice)
         self.assertNotIn("Network/source unavailable", result.notice)
-        self.assertIn("No exchange rates published in the last 10 days", result.notice)
+        self.assertIn("Нет опубликованных курсов за последние 10 дней", result.notice)
 
 
 class TestMainWindowT012T014(unittest.TestCase):
@@ -365,10 +365,10 @@ class TestMainWindowT012T014(unittest.TestCase):
             os.path.dirname(__file__), "fixtures", "sample_bnm_response.xml"
         )
         with open(fixture_path, "r", encoding="utf-8") as f:
-            sample_xml = f.read()
+            self.sample_xml = f.read()
 
         real_service = RateService()
-        rates, eff_date, src = real_service.parse_xml(sample_xml)
+        rates, eff_date, src = real_service.parse_xml(self.sample_xml)
         self.mock_rate_service.get_rates_with_fallback.return_value = RateResult(
             rates=rates,
             effective_date=eff_date,
@@ -381,7 +381,7 @@ class TestMainWindowT012T014(unittest.TestCase):
         self.mock_rate_service.get_pair_rate_display = real_service.get_pair_rate_display
         self.mock_rate_service.format_result = real_service.format_result
 
-        self.app = MainWindow(rate_service=self.mock_rate_service)
+        self.app = MainWindow(rate_service=self.mock_rate_service, async_load=False)
         self.app.withdraw()
 
     def tearDown(self):
@@ -390,9 +390,9 @@ class TestMainWindowT012T014(unittest.TestCase):
     def test_currency_selectors_and_button_lifecycle(self):
         """Verify currency selectors, button disabled/enabled lifecycle, and converted display."""
         # T012: Currency selectors exist and contain loaded currencies
-        self.assertIn("USD", self.app.src_currency_combo["values"])
-        self.assertIn("EUR", self.app.tgt_currency_combo["values"])
-        self.assertIn("MDL", self.app.tgt_currency_combo["values"])
+        self.assertTrue(any(v.startswith("USD") for v in self.app.src_currency_combo["values"]))
+        self.assertTrue(any(v.startswith("EUR") for v in self.app.tgt_currency_combo["values"]))
+        self.assertTrue(any(v.startswith("MDL") for v in self.app.tgt_currency_combo["values"]))
 
         # Button is disabled initially because amount is empty [FR-003]
         self.assertEqual(str(self.app.convert_button["state"]), "disabled")
@@ -416,6 +416,15 @@ class TestMainWindowT012T014(unittest.TestCase):
         self.assertIn("04.11.2026", self.app.info_var.get())
         self.assertIn("BNM", self.app.info_var.get())
 
+        # Test currency swap button
+        self.app.swap_button.invoke()
+        self.assertEqual(self.app._get_code(self.app.src_currency_var.get()), "EUR")
+        self.assertEqual(self.app._get_code(self.app.tgt_currency_var.get()), "USD")
+
+        # Test Enter key triggers conversion
+        self.app._on_enter_pressed()
+        self.assertEqual(self.app.result_var.get(), "111.11 USD")
+
     def test_inline_validation_feedback_and_button_disabled(self):
         """Inline validation messages appear under amount for invalid inputs and clear on valid input [T015, T017]."""
         # Empty input: no error message, button disabled [FR-003]
@@ -425,22 +434,22 @@ class TestMainWindowT012T014(unittest.TestCase):
 
         # Zero input: shows error message, button disabled [FR-006, FR-012]
         self.app.amount_var.set("0")
-        self.assertEqual(self.app.amount_error_var.get(), "Amount must be greater than zero.")
+        self.assertEqual(self.app.amount_error_var.get(), "Сумма должна быть больше нуля.")
         self.assertEqual(str(self.app.convert_button["state"]), "disabled")
 
         # Negative input: shows error message, button disabled [FR-006, FR-012]
         self.app.amount_var.set("-10")
-        self.assertEqual(self.app.amount_error_var.get(), "Amount cannot be negative.")
+        self.assertEqual(self.app.amount_error_var.get(), "Сумма не может быть отрицательной.")
         self.assertEqual(str(self.app.convert_button["state"]), "disabled")
 
         # Non-numeric input: shows error message, button disabled [FR-006, FR-012]
         self.app.amount_var.set("abc")
-        self.assertEqual(self.app.amount_error_var.get(), "Amount must be a valid positive number.")
+        self.assertEqual(self.app.amount_error_var.get(), "Введите корректное положительное число.")
         self.assertEqual(str(self.app.convert_button["state"]), "disabled")
 
         # Special float string 'nan': shows error message, button disabled [FR-006, FR-012]
         self.app.amount_var.set("nan")
-        self.assertEqual(self.app.amount_error_var.get(), "Amount must be a valid positive number.")
+        self.assertEqual(self.app.amount_error_var.get(), "Введите корректное положительное число.")
         self.assertEqual(str(self.app.convert_button["state"]), "disabled")
 
         # Valid input: error message cleared, button enabled [FR-003]
@@ -466,15 +475,14 @@ class TestMainWindowT012T014(unittest.TestCase):
         mock_svc = MagicMock(spec=RateService)
         mock_svc.get_rates_with_fallback.side_effect = URLError("Network unreachable and no cache")
 
-        app = MainWindow(rate_service=mock_svc)
+        app = MainWindow(rate_service=mock_svc, async_load=False)
         app.withdraw()
         try:
-            self.assertIn("Error: Unable to retrieve exchange rates", app.info_var.get())
+            self.assertIn("Ошибка: не удалось получить курсы валют", app.status_var.get())
             app.amount_var.set("100")
             app.src_currency_var.set("USD")
             app.tgt_currency_var.set("MDL")
-            with patch("tkinter.messagebox.showerror"):
-                app.on_convert()
+            app.on_convert()
             self.assertEqual(app.result_var.get(), "—")
         finally:
             app.destroy()
@@ -491,17 +499,17 @@ class TestMainWindowT012T014(unittest.TestCase):
             effective_date="02.11.2026",
             source_name="BNM",
             is_fallback=True,
-            notice="Notice: Using latest available rates from 02.11.2026.",
+            notice="Используется курс на 02.11.2026.",
         )
         mock_svc.process_conversion_request = real_service.process_conversion_request
 
-        app = MainWindow(rate_service=mock_svc)
+        app = MainWindow(rate_service=mock_svc, async_load=False)
         app.withdraw()
         try:
             info_text = app.info_var.get()
-            self.assertIn("Notice: Using latest available rates from 02.11.2026.", info_text)
-            self.assertIn("Rate Date: 02.11.2026", info_text)
-            self.assertIn("Source: BNM", info_text)
+            self.assertIn("Используется курс на 02.11.2026.", info_text)
+            self.assertIn("02.11.2026", info_text)
+            self.assertIn("BNM", info_text)
 
             app.amount_var.set("100")
             app.src_currency_var.set("USD")
@@ -509,9 +517,40 @@ class TestMainWindowT012T014(unittest.TestCase):
             app.on_convert()
 
             info_after = app.info_var.get()
-            self.assertIn("Notice: Using latest available rates from 02.11.2026.", info_after)
-            self.assertIn("Rate Date: 02.11.2026", info_after)
-            self.assertIn("Source: BNM", info_after)
+            self.assertIn("Используется курс на 02.11.2026.", info_after)
+            self.assertIn("02.11.2026", info_after)
+            self.assertIn("BNM", info_after)
+        finally:
+            app.destroy()
+
+    def test_async_background_rate_loading(self):
+        """Startup rate loading runs in a background thread and updates UI on completion."""
+        mock_svc = MagicMock(spec=RateService)
+        real_service = RateService()
+        rates, eff_date, src = real_service.parse_xml(self.sample_xml)
+        mock_svc.get_rates_with_fallback.return_value = RateResult(
+            rates=rates,
+            effective_date=eff_date,
+            source_name=src,
+            is_fallback=False,
+            notice="",
+        )
+        app = MainWindow(rate_service=mock_svc, async_load=True)
+        app.withdraw()
+        try:
+            if hasattr(app, "_load_thread"):
+                app._load_thread.join(timeout=1.0)
+            import time
+            for _ in range(15):
+                time.sleep(0.02)
+                try:
+                    app.update()
+                except tk.TclError:
+                    break
+                if app.rate_result is not None:
+                    break
+            self.assertIsNotNone(app.rate_result)
+            self.assertIn("04.11.2026", app.rate_meta_var.get())
         finally:
             app.destroy()
 
