@@ -5,18 +5,13 @@ Covers FR-003, FR-006, and FR-007.
 
 import unittest
 
-try:
-    from src.services.validation_service import ValidationService
-except ImportError:
-    ValidationService = None
+from src.services.validation_service import ValidationService
 
 
 class TestValidation(unittest.TestCase):
     """Validation test suite."""
 
     def setUp(self):
-        if ValidationService is None:
-            self.fail("ValidationService is not implemented yet")
         self.validator = ValidationService()
 
     def test_empty_amount(self):
@@ -71,6 +66,29 @@ class TestValidation(unittest.TestCase):
         self.assertTrue(is_valid, f"Expected same-currency conversion to be valid, got: {msg}")
         self.assertEqual(msg, "")
 
+
+    def test_surrounding_whitespace_is_allowed(self):
+        """Spaces around a valid number are trimmed."""
+        is_valid, msg = self.validator.validate_amount("  25.5  ")
+        self.assertTrue(is_valid, msg)
+
+    def test_comma_and_incomplete_decimals_rejected(self):
+        """Only plain decimals with a dot are accepted (documented limitation)."""
+        for value in ["10,5", ".5", "5.", "1 000", "+5"]:
+            is_valid, msg = self.validator.validate_amount(value)
+            self.assertFalse(is_valid, f"Expected {value!r} to be invalid")
+            self.assertTrue(msg)
+
+    def test_error_messages_are_specific(self):
+        """Each kind of invalid input gets its own clear message (FR-012)."""
+        self.assertEqual(self.validator.validate_amount("")[1], "Сумма не может быть пустой.")
+        self.assertEqual(self.validator.validate_amount("0")[1], "Сумма должна быть больше нуля.")
+        self.assertEqual(self.validator.validate_amount("-3")[1], "Сумма не может быть отрицательной.")
+        self.assertEqual(self.validator.validate_amount("abc")[1], "Введите корректное положительное число.")
+
+    def test_missing_currency_rejected(self):
+        self.assertFalse(self.validator.validate_request("10", "", "MDL")[0])
+        self.assertFalse(self.validator.validate_request("10", "USD", "  ")[0])
 
 if __name__ == "__main__":
     unittest.main()
