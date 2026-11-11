@@ -47,6 +47,13 @@ class TestValidation(unittest.TestCase):
             self.assertFalse(is_valid, f"Expected {non_num!r} to be invalid")
             self.assertTrue(len(msg) > 0, "Expected a non-empty error message")
 
+    def test_special_float_strings_and_exponential_rejected(self):
+        """Strings like nan, inf, Infinity, 1_000, 1e3 must be rejected [FR-006]."""
+        for invalid_val in ["nan", "inf", "NaN", "Infinity", "1_000", "1e3"]:
+            is_valid, msg = self.validator.validate_amount(invalid_val)
+            self.assertFalse(is_valid, f"Expected {invalid_val!r} to be rejected")
+            self.assertTrue(len(msg) > 0, f"Expected error message for {invalid_val!r}")
+
     def test_valid_positive_amount(self):
         """Valid positive numeric amounts must be accepted."""
         for valid_val in ["100", "0.01", "123.45", "1000000", 50, 42.75]:
