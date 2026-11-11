@@ -66,9 +66,9 @@
 ## Phase 7: Polish and Cross-Cutting Concerns
 
 - [ ] T022 [P] Run `py -m unittest` from the repository root and confirm all automated scenarios pass [SC-002][SC-003][SC-004][SC-005].
-- [ ] T023 [P] Review and update `README.md` with the app purpose, usage, and fallback behavior [FR-008][FR-009][FR-012].
-- [ ] T024 Document `py -m unittest` as the test command in `README.md` [FR-020].
-- [ ] T025 Document `py -m src.app` as the launch command in `README.md` and align the instructions with `specs/001-currency-converter-ui/quickstart.md` (operational documentation task; no FR).
+- [X] T023 [P] Review and update `README.md` with the app purpose, usage, and fallback behavior [FR-008][FR-009][FR-012].
+- [X] T024 Document `py -m unittest` as the test command in `README.md` [FR-020].
+- [X] T025 Document `py -m src.app` as the launch command in `README.md` and align the instructions with `specs/001-currency-converter-ui/quickstart.md` (operational documentation task; no FR).
 - [ ] T026 Run final automated regression with `py -m unittest`, then manually verify quickstart scenario 1 and SC-001's under-one-minute conversion target [SC-001][SC-002][SC-003][SC-004][SC-005].
 
 ## Dependencies and Execution Order
