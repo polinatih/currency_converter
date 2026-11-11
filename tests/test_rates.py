@@ -333,6 +333,25 @@ class TestRatesT005(unittest.TestCase):
         with self.assertRaises(Exception):
             self.rate_service.get_rates_with_fallback(today)
 
+    @patch.object(RateService, "fetch_xml_from_bnm")
+    def test_fallback_to_cache_when_10_day_search_empty(self, mock_fetch):
+        """When 10-day search finds no rates but network works, notice must not say 'Network/source unavailable' [US2]."""
+        rates, effective_date, source_name = self.rate_service.parse_xml(self.valid_xml)
+        self.cache_service.save_cache(effective_date, source_name, rates)
+
+        # Network returns well-formed but empty XML for all dates
+        empty_xml = '<?xml version="1.0" encoding="UTF-8"?><ValCurs Date="04.11.2026" name="Official exchange rate"></ValCurs>'
+        mock_fetch.return_value = empty_xml
+
+        today = date(2026, 11, 15)
+        result = self.rate_service.get_rates_with_fallback(today)
+        self.assertIsNotNone(result)
+        self.assertTrue(result.is_fallback)
+        self.assertEqual(result.effective_date, "01.11.2026")
+        self.assertIn("01.11.2026", result.notice)
+        self.assertNotIn("Network/source unavailable", result.notice)
+        self.assertIn("No exchange rates published in the last 10 days", result.notice)
+
 
 class TestMainWindowT012T014(unittest.TestCase):
     """UI integration tests for T012, T013, T014 [FR-001, FR-002, FR-003, FR-004, FR-005, FR-018]."""
@@ -441,6 +460,60 @@ class TestMainWindowT012T014(unittest.TestCase):
         self.assertEqual(self.app.pair_rate_var.get(), "1 USD = 1.0000 USD")
         self.assertIn("04.11.2026", self.app.info_var.get())
         self.assertIn("BNM", self.app.info_var.get())
+
+    def test_t020_error_displayed_and_conversion_prevented_when_no_rates_available(self):
+        """Display clear error and prevent conversion when source fails and no cache exists [T020, FR-009, FR-012]."""
+        mock_svc = MagicMock(spec=RateService)
+        mock_svc.get_rates_with_fallback.side_effect = URLError("Network unreachable and no cache")
+
+        app = MainWindow(rate_service=mock_svc)
+        app.withdraw()
+        try:
+            self.assertIn("Error: Unable to retrieve exchange rates", app.info_var.get())
+            app.amount_var.set("100")
+            app.src_currency_var.set("USD")
+            app.tgt_currency_var.set("MDL")
+            with patch("tkinter.messagebox.showerror"):
+                app.on_convert()
+            self.assertEqual(app.result_var.get(), "—")
+        finally:
+            app.destroy()
+
+    def test_t021_explicit_notice_effective_date_and_source_displayed(self):
+        """Show explicit latest-rate notice, effective date, and source when earlier rate used [T021, FR-005, FR-012, FR-015]."""
+        mock_svc = MagicMock(spec=RateService)
+        real_service = RateService()
+        rates, _, _ = real_service.parse_xml(
+            '<?xml version="1.0" encoding="UTF-8"?><ValCurs Date="02.11.2026" name="Official exchange rate"><Valute ID="44"><NumCode>840</NumCode><CharCode>USD</CharCode><Nominal>1</Nominal><Name>US Dollar</Name><Value>18.0000</Value></Valute></ValCurs>'
+        )
+        mock_svc.get_rates_with_fallback.return_value = RateResult(
+            rates=rates,
+            effective_date="02.11.2026",
+            source_name="BNM",
+            is_fallback=True,
+            notice="Notice: Using latest available rates from 02.11.2026.",
+        )
+        mock_svc.process_conversion_request = real_service.process_conversion_request
+
+        app = MainWindow(rate_service=mock_svc)
+        app.withdraw()
+        try:
+            info_text = app.info_var.get()
+            self.assertIn("Notice: Using latest available rates from 02.11.2026.", info_text)
+            self.assertIn("Rate Date: 02.11.2026", info_text)
+            self.assertIn("Source: BNM", info_text)
+
+            app.amount_var.set("100")
+            app.src_currency_var.set("USD")
+            app.tgt_currency_var.set("MDL")
+            app.on_convert()
+
+            info_after = app.info_var.get()
+            self.assertIn("Notice: Using latest available rates from 02.11.2026.", info_after)
+            self.assertIn("Rate Date: 02.11.2026", info_after)
+            self.assertIn("Source: BNM", info_after)
+        finally:
+            app.destroy()
 
 
 if __name__ == "__main__":

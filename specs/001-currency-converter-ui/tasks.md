@@ -58,10 +58,10 @@
 
 **Independent Test**: Verify date-by-date retries, and verify cached rate use and effective-date display after malformed XML or a network failure.
 
-- [ ] T018 [US2] Implement date-back fallback in `src/services/rate_service.py`: after an empty response, request each previous day through 10 days before today and use the first valid rates [FR-008][FR-014][FR-015]. Depends on test T004 and task T007.
-- [ ] T019 [US2] Implement fallback to the last successful cached response in `src/services/rate_service.py` when a network error or malformed XML occurs, or the 10-day search finds no rates [FR-009][FR-010][FR-019]. Depends on test T005 and tasks T007 and T009.
-- [ ] T020 [US2] Display a clear error and prevent conversion when source retrieval fails, XML is malformed, or no rate is available and no cache can be used in `src/ui/main_window.py` [FR-009][FR-012]. Depends on tests T004-T005 and task T019.
-- [ ] T021 [US2] Show an explicit latest-rate notice, effective date, and source in `src/ui/main_window.py` when an earlier or cached response is used [FR-005][FR-012][FR-015]. Depends on tests T004-T005 and tasks T018-T019.
+- [X] T018 [US2] Implement date-back fallback in `src/services/rate_service.py`: after an empty response, request each previous day through 10 days before today and use the first valid rates [FR-008][FR-014][FR-015]. Depends on test T004 and task T007.
+- [X] T019 [US2] Implement fallback to the last successful cached response in `src/services/rate_service.py` when a network error or malformed XML occurs, or the 10-day search finds no rates [FR-009][FR-010][FR-019]. Depends on test T005 and tasks T007 and T009.
+- [X] T020 [US2] Display a clear error and prevent conversion when source retrieval fails, XML is malformed, or no rate is available and no cache can be used in `src/ui/main_window.py` [FR-009][FR-012]. Depends on tests T004-T005 and task T019.
+- [X] T021 [US2] Show an explicit latest-rate notice, effective date, and source in `src/ui/main_window.py` when an earlier or cached response is used [FR-005][FR-012][FR-015]. Depends on tests T004-T005 and tasks T018-T019.
 
 ## Phase 7: Polish and Cross-Cutting Concerns
 

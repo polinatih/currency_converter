@@ -189,8 +189,10 @@ class MainWindow(tk.Tk):
                 if self.rate_result.notice:
                     metadata = f"{self.rate_result.notice}\n{metadata}"
                 self.info_var.set(metadata)
+            else:
+                self.info_var.set("Error: No exchange rates available from source or cache.")
         except Exception as e:
-            self.info_var.set(f"Could not load rates: {e}")
+            self.info_var.set(f"Error: Unable to retrieve exchange rates: {e}")
 
     def on_convert(self):
         """Execute conversion when user clicks Convert."""
@@ -214,11 +216,13 @@ class MainWindow(tk.Tk):
             try:
                 self.rate_result = self.rate_service.get_rates_with_fallback()
             except Exception as e:
+                self.info_var.set(f"Error: Unable to retrieve exchange rates: {e}")
                 messagebox.showerror("Rate Error", f"Unable to retrieve exchange rates: {e}")
                 return
 
         if not self.rate_result:
-            messagebox.showerror("Rate Error", "No exchange rates available.")
+            self.info_var.set("Error: No exchange rates available from source or cache.")
+            messagebox.showerror("Rate Error", "No exchange rates available from source or cache.")
             return
 
         try:

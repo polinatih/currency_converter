@@ -230,12 +230,18 @@ class RateService:
                     effective_date=eff_date,
                     source_name=src_name,
                 )
+
+                if fetch_error is not None:
+                    notice = f"Notice: Network/source unavailable. Using cached rates from {eff_date} ({src_name})."
+                else:
+                    notice = f"Notice: No exchange rates published in the last 10 days. Using cached rates from {eff_date} ({src_name})."
+
                 return RateResult(
                     rates=cached_rates,
                     effective_date=eff_date,
                     source_name=src_name,
                     is_fallback=True,
-                    notice=f"Notice: Network/source unavailable. Using cached rates from {eff_date} ({src_name}).",
+                    notice=notice,
                 )
 
         if fetch_error is not None:
