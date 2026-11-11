@@ -297,7 +297,7 @@ class MainWindow(tk.Tk):
         self.status_label = tk.Label(
             self._ntc_frame, textvariable=self.status_var,
             font=_F_NTC, bg=_NTC_BG, fg=_NTC_FG,
-            padx=10, pady=6, anchor="w", wraplength=400, justify="left",
+            padx=10, pady=6, anchor="w", wraplength=360, justify="left",
         )
 
         # Compatibility var (date + notice concatenated; read by tests via info_var.get())
@@ -523,7 +523,19 @@ class MainWindow(tk.Tk):
             self.on_convert()
 
     def _on_input_changed(self, *args):
+        # manual fix: drop a stale result as soon as amount or currencies change,
+        # so an old value is never shown next to new (possibly invalid) input
+        self._clear_result()
         self._update_convert_button_state()
+
+    def _clear_result(self):
+        # widgets may not exist yet while the window is being built
+        if hasattr(self, "result_var"):
+            self.result_var.set("—")
+        if hasattr(self, "pair_rate_var"):
+            self.pair_rate_var.set("")
+        if hasattr(self, "_pair_lbl"):
+            self._pair_lbl.config(text="")
 
     def _update_convert_button_state(self):
         """Enable / disable convert button; update inline validation label."""
@@ -586,7 +598,13 @@ class MainWindow(tk.Tk):
         """Main-thread callback — called after background rate fetch."""
         if error is not None:
             self.rate_result = None
-            msg = f"Ошибка: не удалось получить курсы валют ({error})."
+            # manual fix: user-friendly text instead of the raw exception
+            msg = (
+                "Ошибка: не удалось получить курсы валют. "
+                "Нет подключения к интернету, а сохранённых курсов пока нет. "
+                "Подключитесь к сети и перезапустите приложение."
+            )
+            self._update_pill("Нет данных")
             self._set_status(msg, is_error=True)
             self.info_var.set(msg)
             self._update_convert_button_state()
@@ -595,6 +613,7 @@ class MainWindow(tk.Tk):
         if not result:
             self.rate_result = None
             msg = "Ошибка: нет доступных курсов валют."
+            self._update_pill("Нет данных")
             self._set_status(msg, is_error=True)
             self.info_var.set(msg)
             self._update_convert_button_state()
