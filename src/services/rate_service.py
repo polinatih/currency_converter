@@ -46,7 +46,7 @@ class RateService:
 
         Normalizes rates to MDL per one unit (rate_value / nominal, MDL = 1) [FR-016].
         """
-        root = ET.fromstring(xml_content)
+        root = self._parse_root(xml_content)
         effective_date = root.attrib.get("Date", "").strip()
         source_name = "BNM"
 
@@ -55,7 +55,7 @@ class RateService:
         for valute in root.findall("Valute"):
             char_code = (valute.findtext("CharCode") or "").strip()
             nominal_str = (valute.findtext("Nominal") or "1").strip()
-            value_str = (valute.findtext("Value") or "0").strip().replace(",", ".")
+            value_str = (valute.findtext("Value") or "").strip().replace(",", ".")
 
             if not char_code:
                 continue
@@ -64,6 +64,10 @@ class RateService:
                 nominal = int(nominal_str)
                 rate_value = float(value_str)
             except ValueError:
+                continue
+
+            # data-model.md: rate value and nominal MUST be positive
+            if rate_value <= 0 or nominal <= 0:
                 continue
 
             name = (valute.findtext("Name") or "").strip()
@@ -87,10 +91,22 @@ class RateService:
 
         return rates, effective_date, source_name
 
+    @staticmethod
+    def _parse_root(xml_content: str) -> ET.Element:
+        """Parse XML and make sure it is a BNM <ValCurs> document.
+
+        Any other document (e.g. an HTML error page) is treated as malformed,
+        not as an empty publication day.
+        """
+        root = ET.fromstring(xml_content)
+        if root.tag != "ValCurs":
+            raise ET.ParseError(f"Unexpected root element <{root.tag}>, expected <ValCurs>")
+        return root
+
     def is_empty_response(self, xml_content: str) -> bool:
-        """Check if XML has no Valute elements."""
+        """Check if a valid BNM document has no Valute elements."""
         try:
-            root = ET.fromstring(xml_content)
+            root = self._parse_root(xml_content)
             return len(root.findall("Valute")) == 0
         except ET.ParseError:
             return False
