@@ -48,9 +48,9 @@
 
 **Independent Test**: Exercise all invalid amount cases and same-currency conversion from the UI.
 
-- [ ] T015 [US3] Prevent conversion when validation fails in `src/ui/main_window.py` [FR-003][FR-006]. Depends on test T002 and tasks T008 and T014.
-- [ ] T016 [US3] Handle identical source and target currencies without error in `src/services/rate_service.py` and `src/ui/main_window.py` [FR-007]. Depends on test T002 and tasks T011 and T014.
-- [ ] T017 [US3] Display clear validation feedback in `src/ui/main_window.py` [FR-006][FR-012]. Depends on test T002 and task T015.
+- [X] T015 [US3] Prevent conversion when validation fails in `src/ui/main_window.py` [FR-003][FR-006]. Depends on test T002 and tasks T008 and T014.
+- [X] T016 [US3] Handle identical source and target currencies without error in `src/services/rate_service.py` and `src/ui/main_window.py` [FR-007]. Depends on test T002 and tasks T011 and T014.
+- [X] T017 [US3] Display clear validation feedback in `src/ui/main_window.py` [FR-006][FR-012]. Depends on test T002 and task T015.
 
 ## Phase 6: User Story 2 - Recover from missing or unavailable rates (Priority: P1)
 

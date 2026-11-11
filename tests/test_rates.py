@@ -397,6 +397,51 @@ class TestMainWindowT012T014(unittest.TestCase):
         self.assertIn("04.11.2026", self.app.info_var.get())
         self.assertIn("BNM", self.app.info_var.get())
 
+    def test_inline_validation_feedback_and_button_disabled(self):
+        """Inline validation messages appear under amount for invalid inputs and clear on valid input [T015, T017]."""
+        # Empty input: no error message, button disabled [FR-003]
+        self.app.amount_var.set("")
+        self.assertEqual(self.app.amount_error_var.get(), "")
+        self.assertEqual(str(self.app.convert_button["state"]), "disabled")
+
+        # Zero input: shows error message, button disabled [FR-006, FR-012]
+        self.app.amount_var.set("0")
+        self.assertEqual(self.app.amount_error_var.get(), "Amount must be greater than zero.")
+        self.assertEqual(str(self.app.convert_button["state"]), "disabled")
+
+        # Negative input: shows error message, button disabled [FR-006, FR-012]
+        self.app.amount_var.set("-10")
+        self.assertEqual(self.app.amount_error_var.get(), "Amount cannot be negative.")
+        self.assertEqual(str(self.app.convert_button["state"]), "disabled")
+
+        # Non-numeric input: shows error message, button disabled [FR-006, FR-012]
+        self.app.amount_var.set("abc")
+        self.assertEqual(self.app.amount_error_var.get(), "Amount must be a valid positive number.")
+        self.assertEqual(str(self.app.convert_button["state"]), "disabled")
+
+        # Special float string 'nan': shows error message, button disabled [FR-006, FR-012]
+        self.app.amount_var.set("nan")
+        self.assertEqual(self.app.amount_error_var.get(), "Amount must be a valid positive number.")
+        self.assertEqual(str(self.app.convert_button["state"]), "disabled")
+
+        # Valid input: error message cleared, button enabled [FR-003]
+        self.app.amount_var.set("50.25")
+        self.assertEqual(self.app.amount_error_var.get(), "")
+        self.assertEqual(str(self.app.convert_button["state"]), "normal")
+
+    def test_same_currency_conversion_in_ui(self):
+        """Identical currencies are handled without error in UI and return exact amount [T016, FR-007]."""
+        self.app.amount_var.set("123.45")
+        self.app.src_currency_var.set("USD")
+        self.app.tgt_currency_var.set("USD")
+        self.assertEqual(str(self.app.convert_button["state"]), "normal")
+
+        self.app.on_convert()
+        self.assertEqual(self.app.result_var.get(), "123.45 USD")
+        self.assertEqual(self.app.pair_rate_var.get(), "1 USD = 1.0000 USD")
+        self.assertIn("04.11.2026", self.app.info_var.get())
+        self.assertIn("BNM", self.app.info_var.get())
+
 
 if __name__ == "__main__":
     unittest.main()

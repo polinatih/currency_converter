@@ -19,8 +19,8 @@ class MainWindow(tk.Tk):
     ):
         super().__init__()
         self.title("Currency Converter")
-        self.geometry("450x420")
-        self.minsize(400, 380)
+        self.geometry("450x440")
+        self.minsize(400, 400)
 
         self.rate_service = rate_service or RateService()
         self.validation_service = validation_service or ValidationService()
@@ -46,12 +46,26 @@ class MainWindow(tk.Tk):
 
         # Amount Input
         amount_frame = ttk.Frame(main_frame)
-        amount_frame.pack(fill=tk.X, pady=5)
+        amount_frame.pack(fill=tk.X, pady=(5, 0))
         ttk.Label(amount_frame, text="Amount:", width=15, anchor="w").pack(side=tk.LEFT)
         self.amount_var = tk.StringVar()
         self.amount_entry = ttk.Entry(amount_frame, textvariable=self.amount_var)
         self.amount_entry.pack(side=tk.RIGHT, fill=tk.X, expand=True)
         self.amount_var.trace_add("write", self._on_input_changed)
+
+        # Inline validation feedback under amount field [FR-006, FR-012]
+        error_frame = ttk.Frame(main_frame)
+        error_frame.pack(fill=tk.X, pady=(2, 4))
+        ttk.Label(error_frame, text="", width=15).pack(side=tk.LEFT)
+        self.amount_error_var = tk.StringVar(value="")
+        self.amount_error_label = ttk.Label(
+            error_frame,
+            textvariable=self.amount_error_var,
+            foreground="red",
+            font=("Segoe UI", 8),
+            wraplength=260,
+        )
+        self.amount_error_label.pack(side=tk.LEFT, fill=tk.X, expand=True)
 
         # Source Currency
         src_frame = ttk.Frame(main_frame)
@@ -133,13 +147,29 @@ class MainWindow(tk.Tk):
         self._update_convert_button_state()
 
     def _update_convert_button_state(self):
-        """Enable or disable conversion button based on input validity [FR-003]."""
-        amount = self.amount_var.get()
+        """Enable or disable conversion button and update inline validation message [FR-003, FR-006, FR-012]."""
+        raw_amount = self.amount_var.get()
         src = self.src_currency_var.get()
         tgt = self.tgt_currency_var.get()
 
-        is_valid, _ = self.validation_service.validate_request(amount, src, tgt)
-        if is_valid:
+        stripped = raw_amount.strip()
+        if not stripped:
+            # Empty field shows no error, but button remains disabled
+            self.amount_error_var.set("")
+            self.convert_button.config(state=tk.DISABLED)
+            return
+
+        is_valid_amount, amount_msg = self.validation_service.validate_amount(raw_amount)
+        if not is_valid_amount:
+            self.amount_error_var.set(amount_msg)
+            self.convert_button.config(state=tk.DISABLED)
+            return
+
+        # Amount is valid; clear inline error
+        self.amount_error_var.set("")
+
+        is_valid_req, _ = self.validation_service.validate_request(raw_amount, src, tgt)
+        if is_valid_req:
             self.convert_button.config(state=tk.NORMAL)
         else:
             self.convert_button.config(state=tk.DISABLED)
