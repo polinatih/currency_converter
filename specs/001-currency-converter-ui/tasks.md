@@ -10,16 +10,16 @@
 
 **Purpose**: Create the application and test package structure.
 
-- [ ] T001 Create the package and test directory structure from `plan.md`, including `src/__init__.py`, `src/models/currency_pair.py`, `tests/__init__.py`, and `tests/fixtures/sample_bnm_response.xml`.
+- [X] T001 Create the package and test directory structure from `plan.md`, including `src/__init__.py`, `src/models/currency_pair.py`, `tests/__init__.py`, and `tests/fixtures/sample_bnm_response.xml`.
 
 ## Phase 2: Tests First
 
 **Purpose**: Write the failing standard-library tests before implementing application behavior.
 
-- [ ] T002 [P] [US3] Write validation tests in `tests/test_validation.py` for empty, zero, negative, and non-numeric amounts, and for identical source and target currencies, asserting that a same-currency conversion is accepted and returns exactly the original amount [FR-003][FR-006][FR-007].
-- [ ] T003 [P] [US1] Write tests in `tests/test_rates.py` for BNM XML parsing, rate-per-nominal conversions USD-to-MDL, MDL-to-USD, USD-to-EUR, and EUR-to-USD, the pair-rate display `1 <source> = X <target>` to four decimal places, the conversion result to two decimal places, and `urllib` requests with a 10-second timeout [FR-004][FR-016][FR-017][FR-018][FR-020].
-- [ ] T004 [P] [US2] Write tests in `tests/test_rates.py` for empty responses, malformed XML, and date-by-date fallback through 10 previous days with a notice showing the effective date [FR-008][FR-014][FR-015].
-- [ ] T005 [P] [US2] Write tests in `tests/test_rates.py` for successful JSON cache persistence across restart, preservation when a response is empty or malformed, and malformed XML or network error with a valid cache causing cached rates to be used with their effective date shown [FR-009][FR-010][FR-011][FR-019].
+- [X] T002 [P] [US3] Write validation tests in `tests/test_validation.py` for empty, zero, negative, and non-numeric amounts, and for identical source and target currencies, asserting that a same-currency conversion is accepted and returns exactly the original amount [FR-003][FR-006][FR-007].
+- [X] T003 [P] [US1] Write tests in `tests/test_rates.py` for BNM XML parsing, rate-per-nominal conversions USD-to-MDL, MDL-to-USD, USD-to-EUR, and EUR-to-USD, the pair-rate display `1 <source> = X <target>` to four decimal places, the conversion result to two decimal places, and `urllib` requests with a 10-second timeout [FR-004][FR-016][FR-017][FR-018][FR-020].
+- [X] T004 [P] [US2] Write tests in `tests/test_rates.py` for empty responses, malformed XML, and date-by-date fallback through 10 previous days with a notice showing the effective date [FR-008][FR-014][FR-015].
+- [X] T005 [P] [US2] Write tests in `tests/test_rates.py` for successful JSON cache persistence across restart, preservation when a response is empty or malformed, and malformed XML or network error with a valid cache causing cached rates to be used with their effective date shown [FR-009][FR-010][FR-011][FR-019].
 
 ## Phase 3: Foundational Implementation
 
