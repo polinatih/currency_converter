@@ -64,16 +64,6 @@ class TestValidation(unittest.TestCase):
         self.assertTrue(is_valid, f"Expected same-currency conversion to be valid, got: {msg}")
         self.assertEqual(msg, "")
 
-    def test_same_currency_returns_original_amount(self):
-        """Same-currency conversion must return exactly the original amount."""
-        amount = 123.45
-        result = self.validator.convert_same_currency(amount, "EUR", "EUR")
-        self.assertEqual(result, 123.45)
-
-        # Also test with float/str conversions
-        result_str = self.validator.format_same_currency(100.0, "USD")
-        self.assertEqual(result_str, "100.00")
-
 
 if __name__ == "__main__":
     unittest.main()

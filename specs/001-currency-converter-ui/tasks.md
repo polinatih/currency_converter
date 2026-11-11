@@ -25,11 +25,11 @@
 
 **Purpose**: Implement shared domain and service foundations after the tests are defined.
 
-- [ ] T006 Create currency models in `src/models/conversion_request.py`, `src/models/exchange_rate.py`, `src/models/rate_cache.py`, and `src/models/currency_pair.py`, including BNM nominal values and the synthetic MDL rate [FR-004][FR-016][FR-017]. Depends on tests T002, T003, and T005.
-- [ ] T007 Implement BNM `urllib` fetching with a 10-second timeout, XML parsing, and normalization of each rate to MDL per one unit (`rate_value / nominal`, MDL = 1) in `src/services/rate_service.py`. This task does not apply rates to an amount and does not implement date-back or cache fallback [FR-013][FR-016][FR-017][FR-020]. Depends on test T003.
-- [ ] T008 Implement input validation in `src/services/validation_service.py` for empty, zero, negative, and non-numeric amounts and valid identical-currency requests [FR-003][FR-006][FR-007]. Depends on test T002.
-- [ ] T009 Implement persistence of the last successful parsed response in the single JSON cache file in `src/services/cache_service.py`; empty or malformed responses must not replace it [FR-011][FR-019]. Depends on test T005.
-- [ ] T010 Create the application entry point and window skeleton in `src/app.py` and `src/ui/main_window.py`, using the package structure from T001.
+- [X] T006 Create currency models in `src/models/conversion_request.py`, `src/models/exchange_rate.py`, `src/models/rate_cache.py`, and `src/models/currency_pair.py`, including BNM nominal values and the synthetic MDL rate [FR-004][FR-016][FR-017]. Depends on tests T002, T003, and T005.
+- [X] T007 Implement BNM `urllib` fetching with a 10-second timeout, XML parsing, and normalization of each rate to MDL per one unit (`rate_value / nominal`, MDL = 1) in `src/services/rate_service.py`. This task does not apply rates to an amount and does not implement date-back or cache fallback [FR-013][FR-016][FR-017][FR-020]. Depends on test T003.
+- [X] T008 Implement input validation in `src/services/validation_service.py` for empty, zero, negative, and non-numeric amounts and valid identical-currency requests [FR-003][FR-006][FR-007]. Depends on test T002.
+- [X] T009 Implement persistence of the last successful parsed response in the single JSON cache file in `src/services/cache_service.py`; empty or malformed responses must not replace it [FR-011][FR-019]. Depends on test T005.
+- [X] T010 Create the application entry point and window skeleton in `src/app.py` and `src/ui/main_window.py`, using the package structure from T001.
 
 ## Phase 4: User Story 1 - Convert money between currencies (Priority: P1)
 

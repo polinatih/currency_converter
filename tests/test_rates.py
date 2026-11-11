@@ -105,6 +105,13 @@ class TestRatesT003(unittest.TestCase):
         result = self.service.convert(1000.0, "HUF", "MDL", rates)
         self.assertAlmostEqual(result, 50.0, places=2)
 
+    def test_conversion_same_currency(self):
+        """Converting same currency returns exactly the original amount and formats correctly."""
+        rates, _, _ = self.service.parse_xml(self.sample_xml)
+        result = self.service.convert(123.45, "EUR", "EUR", rates)
+        self.assertEqual(result, 123.45)
+        self.assertEqual(self.service.format_result(result), "123.45")
+
     def test_pair_rate_display_four_decimals(self):
         """Display pair rate as '1 <source> = X <target>' with 4 decimal places."""
         rates, _, _ = self.service.parse_xml(self.sample_xml)
