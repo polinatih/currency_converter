@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# local exchange-rate cache (created at runtime)
+*.cache.json
+rates_cache.json
+cache/
+
+.vscode/
+.idea/
